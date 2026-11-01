@@ -1,7 +1,45 @@
-export QNX_BASE=/xen/qnx640
+# ---------------------------------------------------------------------------
+# openQNX / monartis build environment
+# ---------------------------------------------------------------------------
+# This file must be sourced before building:
+#     . ./qnx_env
+#     cd trunk
+#     make CPULIST=x86 OSLIST=nto hinstall
+#     make CPULIST=x86 OSLIST=nto install
+#
+# Two supported ways to build on a Linux host:
+#
+#  A) QNX Momentics cross-toolchain (recommended, produces a bootable QNX OS):
+#     Momentics 6.4 ships a Linux-hosted toolchain (qcc -> nto/x86) together
+#     with the mkfiles (recurse.mk, qtargets.mk), headers and libraries this
+#     tree requires.  Point QNX_BASE at your Momentics install.
+#
+#  B) Native host gcc (NOT supported by this tree out of the box):
+#     openQNX is a QNX Neutrino RTOS source tree (kernel procnto, libc,
+#     drivers, services).  342+ source files include QNX-specific headers
+#     (<sys/neutrino.h>, <sys/kercalls.h>, <sys/syspage.h> ...) and the build
+#     system is QNX's mkfiles-based recursive make.  Porting it to host gcc on
+#     Linux is a full OS port; the x86 kernel cannot run on Linux.
+#
+# ---------------------------------------------------------------------------
+
+# QNX Momentics installation directory (edit to match your system).
+# Example Linux-hosted Momentics 6.4 layout:
+#   /opt/qnx640, /usr/qnx640, $HOME/qnx640, ...
+QNX_BASE=${QNX_BASE:-/opt/qnx640}
+
+export QNX_BASE
 export QNX_TARGET=$QNX_BASE/target/qnx6
-export PATH=$PATH:$QNX_BASE/host/linux/x86/usr/bin
 export QNX_HOST=$QNX_BASE/host/linux/x86
+export PATH=$PATH:$QNX_HOST/usr/bin
 export MAKEFLAGS=-I$QNX_TARGET/usr/include
 export MKFILES_ROOT=$QNX_TARGET/usr/include/mk/
-export QCONF_OVERRIDE=/realtime/monartis/src/openqnx/qconf-override.mk
+export QCONF_OVERRIDE=${PWD}/qconf-override.mk
+
+# Sanity check: the QNX build system requires recurse.mk from MKFILES_ROOT.
+if [ ! -f "$MKFILES_ROOT/recurse.mk" ]; then
+    echo "qnx_env: QNX Momentics not found at $QNX_BASE" >&2
+    echo "qnx_env:   set QNX_BASE to a Momentics 6.4 install, or install it." >&2
+    echo "qnx_env:   Then run: . ./qnx_env && cd trunk && make CPULIST=x86 OSLIX=nto hinstall" >&2
+    return 1 2>/dev/null || exit 1
+fi
