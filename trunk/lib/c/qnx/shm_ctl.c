@@ -21,6 +21,7 @@
 #include <sys/mman.h>
 #include <devctl.h>
 #include <ioctl.h>
+#include <string.h>
 #include <sys/dcmd_proc.h>
 #include <inttypes.h>
 #include <errno.h>
