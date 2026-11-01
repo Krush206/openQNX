@@ -78,7 +78,7 @@ void _Unlockfilemtx() {
 
 void _Unlocksysmtx() {
 	int   loop;
-	_Rmtx *_Mtx;
+	_Rmtx _Mtx;
 	pthread_t thr = pthread_self();
 
 	for (loop = 0; loop < _MAX_LOCK; ++loop) {
@@ -89,7 +89,7 @@ void _Unlocksysmtx() {
 
 static void _Lockfilealloc(FILE *str) {
 	struct _file_list *fptr;
-	_Rmtx *_Mtx;
+	_Rmtx _Mtx;
 
 	_Mtxlock(&_Flist_mtx);
 	// somebody might have jumped in and grabbed a lock for us before 
