@@ -1,0 +1,100 @@
+/*
+ * nto.link
+ *	Loader command script for Neutrino
+ *	(extended for GNU ld cross-building of shared libraries:
+ *	 explicit dynamic-linking sections + PT_DYNAMIC segment)
+ *
+ */
+ENTRY(_start)
+PHDRS {
+	text	PT_LOAD;
+	data	PT_LOAD;
+	dynamic	PT_DYNAMIC;
+	note	PT_NOTE;
+}
+
+SECTIONS {
+	.text 0x8020000 : {
+		*(.text*)
+		*(___procnto)
+		*(___c)
+		ettext = .;
+		_etext = .;
+		_fdata = .;
+		*(.rodata_mod_start)
+		module_list_start = .;	
+		*(.rodata_mod)
+		module_list_end = .;	
+		*(.rodata_mod_end)
+		*(.rodata*)
+	}:text
+	.hash : {
+		*(.hash)
+	}:text
+	.dynsym : {
+		*(.dynsym)
+	}:text
+	.dynstr : {
+		*(.dynstr)
+	}:text
+	.rel.dyn : {
+		*(.rel.dyn)
+	}:text
+	.rel.plt : {
+		*(.rel.plt)
+	}:text
+	.plt : {
+		*(.plt)
+		*(.plt.got)
+	}:text
+	.data ALIGN(0x1000) : {
+		*(.data)
+		*(.eh_frame*)
+	}:data
+	.dynamic : {
+		*(.dynamic)
+	}:data:dynamic
+	.got : {
+		*(.got)
+	}:data
+	.got.plt : {
+		*(.got.plt)
+	}:data
+	.data.rel.ro : {
+		*(.data.rel.ro*)
+	}:data
+	.data.rel : {
+		*(.data.rel*)
+	}:data
+	.preinit_array ALIGN(4) : {
+		__preinit_array_start = .;
+		*(.preinit_array)
+		__preinit_array_end = .;
+	}:data
+	.init_array ALIGN(4) : {
+		__init_array_start = .;
+		*(.init_array)
+		__init_array_end = .;
+	}:data
+	.fini_array ALIGN(4) : {
+		__fini_array_start = .;
+		*(.fini_array)
+		__fini_array_end = .;
+	}:data
+	.ctors . : {
+		*(.ctors)
+	}:data
+	.bss . : {
+		*(.bss)
+		*(COMMON)
+		_end = .;
+		__end = .;
+		end = .;
+	}:data
+	.debug 0x0 : { *(.debug) }:NONE
+	.debug_srcinfo 0x0 : { *(.debug_srcinfo) }:NONE
+	.debug_aranges 0x0 : { *(.debug_aranges) }:NONE
+	.debug_pubnames 0x0 : { *(.debug_pubnames) }:NONE
+	.debug_sfnames 0x0 : { *(.debug_sfnames) }:NONE
+	.line 0x0 : { *(.line) }:NONE
+}
